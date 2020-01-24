@@ -1,10 +1,11 @@
+var sideCompression = 16
 var arr = []
-var len = 800
+var len = 16384
 var comparisonCount = 0
 var arrayEdits = 0
 var insInterval = 1
 var insLen = 1
-var oof = 1.5
+var oof = 2
 //var osc
 //var osc2
 //var playing = false
@@ -13,13 +14,19 @@ function setup() {
 	while (insInterval*oof < len) insInterval *= oof
 	insLen = round(insInterval)
 	insInterval = round(insInterval)
-	createCanvas(len,750)
-	for (let i = 0; i < len; i++) {
+	createCanvas(len/sideCompression,750)
+	/*for (let i = 0; i < len; i++) {
 		let j = random(750)
 		//let j = noise(i*0.03)*750
 		arr.push(j)
+	}*/
+	for (let i = 0; i < len; i++) {
+		arr.push(i/len*750)
 	}
-	slider = createSlider(1, 64, 1)
+	for (let i = 0; i < len*80; i++) {
+		swap(arr, floor(random(len)), floor(random(len)))
+	}
+	slider = createSlider(1, 1024, 1)
 	slider.style('width','192px')
 	//osc = new p5.Oscillator()
 	//osc.setType('square')
@@ -32,19 +39,21 @@ function setup() {
 }
 
 function draw() {
+	colorMode(HSB,255)
 	background(0)
 	stroke(255)
-	for (let i = 0; i < len; i++) {
-		line(i,750,i,750-arr[i])
+	for (let i = 0; i < len; i += sideCompression) {
+		stroke(map(arr[i],0,750,0,255),255,255)
+		line(i/sideCompression,750,i/sideCompression,750-arr[i])
 	}
 	for (let o = 0; o < slider.value(); o++) {
-		if (insInterval >= 1/oof) {
+		if (insInterval > 1/oof) {
 			if (insLen < len) {
 				oneInsert(insLen)
 				insLen++
 			} else {
 				insInterval /= oof
-				insInterval = round(insInterval)
+				insInterval = floor(insInterval)
 				insLen = floor(insInterval)
 			}
 		} else {
